@@ -85,10 +85,11 @@ footer{margin-top:28px;text-align:center;font-size:11px;line-height:1.6;color:va
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const won=n=>n?Number(n).toLocaleString('ko-KR')+'원':'';
 let items=[];
+const utm=(u,no)=>{try{const x=new URL(u);x.searchParams.set('utm_source','instagram');x.searchParams.set('utm_medium','linkpage');x.searchParams.set('utm_campaign','world_item_tip');x.searchParams.set('utm_content','no'+no);return x.href}catch(e){return u}};
 function card(p){
   const fresh=(Date.now()-new Date(p.date))<3*864e5;
   const off=p.orig_price&&p.price?Math.round((1-p.price/p.orig_price)*100):0;
-  return `<a class="item" id="p${p.no}" href="${esc(p.link)}" target="_blank" rel="noopener" data-no="${p.no}">
+  return `<a class="item" id="p${p.no}" href="${esc(utm(p.link,p.no))}" target="_blank" rel="noopener" data-no="${p.no}">
     <div class="thumb"><img src="${esc(p.image)}" alt="" loading="lazy"></div>
     <div class="info">${fresh?'<span class="new">NEW</span>':''}
       <div class="title">${p.no}번 ${esc(p.title)}</div>
