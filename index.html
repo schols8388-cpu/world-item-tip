@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>월드아이템팁</title>
+<meta name="description" content="해외에서 터진 제품만 골라 소개해요. 릴스 속 제품 번호로 바로 찾으세요.">
+<meta property="og:title" content="월드아이템팁">
+<meta property="og:description" content="릴스 속 제품, 번호로 바로 찾기">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--bg:#f4f4f6;--card:#fff;--ink:#16161a;--sub:#6e6e78;--line:#e7e7ec;--accent:#ff4d4f;--chip:#16161a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px 48px;min-height:100vh;background:var(--bg)}
+header{text-align:center;padding:40px 0 20px}
+.avatar{width:88px;height:88px;border-radius:50%;margin:0 auto 12px;background:linear-gradient(135deg,#ffb347,#ff4d4f);display:grid;place-items:center;color:#fff;font-size:34px;font-weight:800;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+h1{font-size:20px;font-weight:800}
+.handle{font-size:13px;color:var(--sub);margin-top:2px}
+.bio{font-size:14px;line-height:1.55;margin-top:10px;white-space:pre-line}
+.social{display:inline-flex;gap:6px;align-items:center;margin-top:14px;padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);text-decoration:none}
+.search{position:sticky;top:0;z-index:5;padding:10px 0;background:var(--bg)}
+.search input{width:100%;height:48px;border:1.5px solid var(--ink);border-radius:14px;padding:0 16px;font:inherit;font-size:15px;background:var(--card);outline:none}
+.search input::placeholder{color:#9b9ba5}
+.count{font-size:12px;color:var(--sub);margin:6px 2px 10px}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:16px;padding:10px;text-decoration:none;color:inherit;border:2px solid transparent;transition:transform .15s}
+.item:active{transform:scale(.98)}
+.item.hit{border-color:var(--accent)}
+.thumb{position:relative;flex:0 0 84px;height:84px;border-radius:12px;overflow:hidden;background:#eee}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.no{position:absolute;left:6px;top:6px;background:var(--chip);color:#fff;font-size:11px;font-weight:800;padding:3px 7px;border-radius:7px}
+.info{flex:1;min-width:0}
+.new{display:inline-block;font-size:10px;font-weight:800;color:var(--accent);margin-bottom:3px}
+.title{font-size:15px;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.price{margin-top:5px;font-size:14px;font-weight:800}
+.price s{color:var(--sub);font-weight:500;font-size:12px;margin-left:4px}
+.price em{color:var(--accent);font-style:normal;margin-right:4px}
+.go{flex:0 0 auto;font-size:13px;font-weight:700;background:var(--ink);color:#fff;padding:9px 12px;border-radius:10px}
+.empty{text-align:center;color:var(--sub);font-size:14px;padding:48px 0}
+footer{margin-top:28px;text-align:center;font-size:11px;line-height:1.6;color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="avatar" id="avatar"></div>
+    <h1 id="name"></h1>
+    <div class="handle" id="handle"></div>
+    <p class="bio" id="bio"></p>
+    <a class="social" id="ig" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+      인스타그램
+    </a>
+  </header>
+  <div class="search"><input id="q" type="search" inputmode="search" placeholder="🔍 릴스 속 번호 또는 제품명"></div>
+  <div class="count" id="count"></div>
+  <div class="list" id="list"></div>
+  <footer id="notice"></footer>
+</div>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const won=n=>n?Number(n).toLocaleString('ko-KR')+'원':'';
+let items=[];
+function card(p){
+  const fresh=(Date.now()-new Date(p.date))<3*864e5;
+  const off=p.orig_price&&p.price?Math.round((1-p.price/p.orig_price)*100):0;
+  return `<a class="item" id="p${p.no}" href="${esc(p.link)}" target="_blank" rel="noopener" data-no="${p.no}">
+    <div class="thumb"><img src="${esc(p.image)}" alt="" loading="lazy"></div>
+    <div class="info">${fresh?'<span class="new">NEW</span>':''}
+      <div class="title">${p.no}번 ${esc(p.title)}</div>
+      <div class="price">${off>0?`<em>${off}%</em>`:''}${won(p.price)}${off>0?`<s>${won(p.orig_price)}</s>`:''}</div>
+    </div><span class="go">구매</span></a>`;
+}
+function render(){
+  const q=document.getElementById('q').value.trim().replace(/^no\.?\s*/i,'');
+  const isNo=/^\d+$/.test(q);
+  const list=items.filter(p=>!q||(isNo?String(p.no)===q:(p.title+' '+(p.tags||[]).join(' ')).toLowerCase().includes(q.toLowerCase())));
+  document.getElementById('list').innerHTML=list.length?list.map(card).join(''):`<div class="empty">${items.length?'찾는 제품이 없어요. 번호를 다시 확인해 주세요.':'곧 첫 제품이 올라와요!'}</div>`;
+  document.getElementById('count').textContent=items.length?(q?`검색 결과 ${list.length}개`:`전체 ${items.length}개 · 최신순`):'';
+  if(isNo&&list.length===1)document.getElementById('p'+q).classList.add('hit');
+}
+Promise.all([fetch('config.json').then(r=>r.json()),fetch('products.json',{cache:'no-store'}).then(r=>r.json())]).then(([c,p])=>{
+  document.getElementById('name').textContent=c.name;
+  document.getElementById('handle').textContent='@'+c.handle;
+  document.getElementById('bio').textContent=c.bio;
+  document.getElementById('ig').href=c.instagram;
+  document.getElementById('notice').textContent=c.notice;
+  const av=document.getElementById('avatar');
+  const img=new Image();img.onload=()=>{av.textContent='';av.appendChild(img)};img.onerror=()=>{av.textContent=c.name[0]};img.src=c.avatar;
+  items=p.filter(x=>!x.hidden).sort((a,b)=>b.no-a.no);
+  const h=decodeURIComponent(location.hash.slice(1));
+  if(h)document.getElementById('q').value=h;
+  render();
+});
+document.getElementById('q').addEventListener('input',render);
+</script>
+</body>
+</html>
