@@ -20,6 +20,15 @@ h1{font-size:20px;font-weight:800}
 .handle{font-size:13px;color:var(--sub);margin-top:2px}
 .bio{font-size:14px;line-height:1.55;margin-top:10px;white-space:pre-line}
 .social{display:inline-flex;gap:6px;align-items:center;margin-top:14px;padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);text-decoration:none}
+button.social{font-family:inherit;cursor:pointer;margin-left:4px}
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+.panel{width:100%;max-width:480px;background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))}
+.panel h2{font-size:18px;font-weight:800}
+.panel p{font-size:14px;line-height:1.6;color:var(--sub);margin-top:8px}
+.panel ul{margin:12px 0 18px 18px;font-size:14px;line-height:1.8}
+.cta{display:block;text-align:center;background:var(--ink);color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:14px;border-radius:12px}
+.close{display:block;width:100%;margin-top:8px;padding:12px;border:0;background:none;font:inherit;font-size:14px;color:var(--sub);cursor:pointer}
 .search{position:sticky;top:0;z-index:5;padding:10px 0;background:var(--bg)}
 .search input{width:100%;height:48px;border:1.5px solid var(--ink);border-radius:14px;padding:0 16px;font:inherit;font-size:15px;background:var(--card);outline:none}
 .search input::placeholder{color:#9b9ba5}
@@ -53,7 +62,20 @@ footer{margin-top:28px;text-align:center;font-size:11px;line-height:1.6;color:va
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
       인스타그램
     </a>
+    <button class="social" id="bizBtn" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+      비즈니스 제안
+    </button>
   </header>
+  <div class="sheet" id="biz" hidden>
+    <div class="panel">
+      <h2>비즈니스 제안</h2>
+      <p>제품 소개·협찬·공동구매 제안 환영해요!<br>아래 내용을 함께 보내주시면 빠르게 답변드려요.</p>
+      <ul><li>브랜드 / 제품명</li><li>제안 내용 (협찬·공구·광고 등)</li><li>연락처</li></ul>
+      <a class="cta" id="bizDm" target="_blank" rel="noopener">인스타 DM으로 제안하기</a>
+      <button class="close" type="button" id="bizClose">닫기</button>
+    </div>
+  </div>
   <div class="search"><input id="q" type="search" inputmode="search" placeholder="🔍 릴스 속 번호 또는 제품명"></div>
   <div class="count" id="count"></div>
   <div class="list" id="list"></div>
@@ -86,6 +108,7 @@ Promise.all([fetch('config.json').then(r=>r.json()),fetch('products.json',{cache
   document.getElementById('handle').textContent='@'+c.handle;
   document.getElementById('bio').textContent=c.bio;
   document.getElementById('ig').href=c.instagram;
+  document.getElementById('bizDm').href='https://ig.me/m/'+c.handle;
   document.getElementById('notice').textContent=c.notice;
   const av=document.getElementById('avatar');
   const img=new Image();img.onload=()=>{av.textContent='';av.appendChild(img)};img.onerror=()=>{av.textContent=c.name[0]};img.src=c.avatar;
@@ -95,6 +118,10 @@ Promise.all([fetch('config.json').then(r=>r.json()),fetch('products.json',{cache
   render();
 });
 document.getElementById('q').addEventListener('input',render);
+const biz=document.getElementById('biz');
+document.getElementById('bizBtn').onclick=()=>biz.hidden=false;
+document.getElementById('bizClose').onclick=()=>biz.hidden=true;
+biz.onclick=e=>{if(e.target===biz)biz.hidden=true};
 </script>
 </body>
 </html>
